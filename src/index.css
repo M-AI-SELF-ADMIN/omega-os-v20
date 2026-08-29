@@ -1,0 +1,14 @@
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: #0A0C12;
+  color: #C8CCD8;
+}
+* { box-sizing: border-box; }
+body {
+  font-family: "JetBrains Mono", "Fira Code", "Courier New", monospace;
+}
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: #0A0C12; }
+::-webkit-scrollbar-thumb { background: #1E2230; border-radius: 4px; }
