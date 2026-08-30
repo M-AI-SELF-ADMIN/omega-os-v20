@@ -32,8 +32,7 @@ export function saveLedger(partial) {
       queue: (partial.queue ?? prev.queue).slice(0, 12),
     };
     window.localStorage.setItem(KEY, JSON.stringify(next));
-    const prevLen = prev.jsonl.length;
-    const added = next.jsonl.slice(prevLen);
+    const added = next.jsonl.slice(prev.jsonl.length);
     if (added.length) flushChronicle(added);
   } catch {
     /* quota / private mode */
@@ -41,11 +40,14 @@ export function saveLedger(partial) {
 }
 
 export function flushChronicle(lines) {
-  if (typeof window === "undefined" || !lines.length) return;
+  if (typeof window === "undefined" || !lines?.length) return;
   const body = lines.map((l) => JSON.stringify(l)).join("\n") + "\n";
-  fetch("/api/chronicle", {
-    method: "POST",
-    headers: { "Content-Type": "text/plain" },
-    body,
-  }).catch(() => {});
+  const endpoints = ["/api/chronicle", "https://omega-chronicle.vercel.app/api/chronicle"];
+  for (const url of endpoints) {
+    fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain" },
+      body,
+    }).catch(() => {});
+  }
 }
