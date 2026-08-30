@@ -78,9 +78,7 @@ export function pickAgent(agents, skill) {
 
 export function createMission(intentText, tick = 0, autonomy = "A2") {
   const parsed = parseIntent(intentText);
-  if (!parsed.raw) {
-    throw new Error("empty intent");
-  }
+  if (!parsed.raw) throw new Error("empty intent");
   const id = `m${++_mid}`;
   return {
     mission_id: id,
@@ -130,7 +128,6 @@ export function buildPlan(parsed) {
 export function needsApproval(step, autonomy) {
   if (!HIGH_RISK.has(step.skill)) return false;
   if (autonomy === "A3") return false;
-  if (autonomy === "A1") return true;
   return true;
 }
 
@@ -228,15 +225,14 @@ export function tickMission(mission, ctx) {
       return m;
     }
     next.status = "running";
-    const action = {
+    m.actions.push({
       id: `act-${next.id}`,
       tick,
       skill: next.skill,
       zone: next.zone,
       assignee: next.assignee,
       status: "dispatched",
-    };
-    m.actions.push(action);
+    });
     ev(m, tick, "act", `Dispatch ${next.skill} → ${next.zone}`, "work");
     writeMem(m, tick, 3, `tool.${next.skill}`, "dispatched");
     return m;
@@ -276,18 +272,31 @@ export function resolveApproval(mission, approvalId, decision, tick) {
   return m;
 }
 
-export function markStepDone(mission, stepId, tick) {
+export function markStepDone(mission, stepId, tick, receipt = null) {
   const m = {
     ...mission,
     events: [...mission.events],
     plan: { steps: mission.plan.steps.map((s) => ({ ...s })) },
     actions: mission.actions.map((a) => ({ ...a })),
+    artifacts: [...(mission.artifacts || [])],
   };
   const step = m.plan.steps.find((s) => s.id === stepId);
   if (step) step.status = "done";
   const action = m.actions.find((a) => a.id === `act-${stepId}`);
-  if (action) action.status = "done";
-  if (step) ev(m, tick, "act", `Completed ${step.skill}`, "work");
+  if (action) {
+    action.status = "done";
+    if (receipt) action.receipt = receipt;
+  }
+  if (receipt) {
+    m.artifacts.push({
+      id: `art-${stepId}`,
+      kind: receipt.kind || "receipt",
+      title: receipt.artifact || receipt.skill,
+      note: receipt.note,
+      tick,
+    });
+  }
+  if (step) ev(m, tick, "act", `Completed ${step.skill}${receipt?.dry_run ? " (dry-run)" : ""}`, "work");
   return m;
 }
 
