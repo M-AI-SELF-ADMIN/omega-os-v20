@@ -1,7 +1,7 @@
 {
   "name": "omega-os-v2",
   "private": true,
-  "version": "20.0.0",
+  "version": "20.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
