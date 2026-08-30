@@ -32,7 +32,20 @@ export function saveLedger(partial) {
       queue: (partial.queue ?? prev.queue).slice(0, 12),
     };
     window.localStorage.setItem(KEY, JSON.stringify(next));
+    const prevLen = prev.jsonl.length;
+    const added = next.jsonl.slice(prevLen);
+    if (added.length) flushChronicle(added);
   } catch {
     /* quota / private mode */
   }
+}
+
+export function flushChronicle(lines) {
+  if (typeof window === "undefined" || !lines.length) return;
+  const body = lines.map((l) => JSON.stringify(l)).join("\n") + "\n";
+  fetch("/api/chronicle", {
+    method: "POST",
+    headers: { "Content-Type": "text/plain" },
+    body,
+  }).catch(() => {});
 }
