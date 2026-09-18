@@ -1,13 +1,13 @@
 {
   "name": "omega-os-v2",
   "private": true,
-  "version": "20.1.0",
+  "version": "20.2.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "node src/runtime/engine.test.mjs"
+    "test": "node --test src/runtime/engine.test.mjs src/runtime/store.test.mjs"
   },
   "dependencies": {
     "react": "^18.3.1",

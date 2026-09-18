@@ -1,23 +1,24 @@
-# PROJECT STATE — OMEGA OS v20.1
+# PROJECT STATE — OMEGA OS v20.2
 
-Date: 2026-08-30
-Mode: runtime / WebUI mission control
+Date: 2026-09-18
+Mode: single-writer store + event queue
 Autonomy default: A2
 
 ## Live
-- https://grok-repo.vercel.app (AUUU-os/grok-repo, v20.0 snapshot)
-- This increment: v20.1 on M-AI-SELF-ADMIN/omega-os-v20
+- https://grok-repo.vercel.app (older v20.0 snapshot)
+- Worker: https://omega-chronicle.vercel.app/api/chronicle (20.1)
+- Source: https://github.com/M-AI-SELF-ADMIN/omega-os-v20
 
-## What is real
-- OODA-L state machine
-- Approval gate for mcp.shell / mcp.github / mcp.deploy
-- Memory ledger writes s0/s1/s3/s4/s7/s8/s9
-- Tool receipts (dry-run for high-risk MCP tools)
-- Mission queue
-- JSONL chronicle export
-- Tests: npm test
+## v20.2
+- `src/runtime/store.js` — one queue, sync flush, `useSyncExternalStore`
+- Events: TICK / LAUNCH / APPROVE / SET_*
+- Second intent queues behind a live mission; dequeues on terminal phase
+- `simTick` returns sparks; world reducer does not call setState
+- Approve vs tick cannot clobber (serialized reduce)
+- Tests: `npm test` (engine + store) — 6 passing
 
-## What is not real yet
+## Still not real
 - No FastAPI / SSE backend
 - No live LLM calls
-- High-risk tools do not execute shell/git/deploy
+- High-risk tools emit receipts only
+- This repo is not the live Vercel production alias
